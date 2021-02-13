@@ -48,7 +48,7 @@ function findLanguage() {
 /* Main function for uploading code to GitHub repo */
 const upload = (token, hook, code, directory, filename, sha, msg) => {
   // To validate user, load user object from GitHub.
-  const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
+  const URL = `https://api.github.com/repos/${hook}/contents/${filename}`;
 
   /* Define Payload */
   let data = {
@@ -76,7 +76,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
             stats.hard = 0;
             stats.sha = {};
           }
-          const filePath = directory + filename;
+          const filePath = filename;
           // Only increment solved problems statistics once
           // New submission commits twice (README and problem)
           if (filename === 'README.md' && sha === null) {
@@ -166,7 +166,7 @@ function uploadGit(
               /* Get SHA, if it exists */
 
               /* to get unique key */
-              const filePath = problemName + fileName;
+              const filePath = fileName;
               chrome.storage.sync.get('stats', (s) => {
                 const { stats } = s;
                 let sha = null;
@@ -345,7 +345,7 @@ function parseStats() {
   const spacePercentile = probStats[3].textContent;
 
   // Format commit message
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile})`;
 }
 
 document.addEventListener('click', (event) => {
@@ -374,14 +374,14 @@ document.addEventListener('click', (event) => {
         const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
         const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
         const problemName = window.location.pathname.split('/')[2]; // must be true.
-
+/*
         uploadGit(
           addition,
           problemName,
           'README.md',
           discussionMsg,
           'update',
-        );
+        );*/
       }
     }, 1000);
   }
@@ -403,12 +403,12 @@ const loader = setInterval(() => {
   }
   if (probStatement !== null && probStats !== null) {
     clearTimeout(loader);
-    const problemName = window.location.pathname.split('/')[2]; // must be true.
+    const problemName = window.location.pathname.split('/')[2].replace(/-/g,'_'); // must be true. changed to underscore for Wallbreakers format
     const language = findLanguage();
     if (language !== null) {
       chrome.storage.sync.get('stats', (s) => {
         const { stats } = s;
-        const filePath = problemName + problemName + language;
+        const filePath = problemName + language;
         let sha = null;
         if (
           stats !== undefined &&
@@ -419,16 +419,16 @@ const loader = setInterval(() => {
         }
 
         /* Only create README if not already created */
-        if (sha === null) {
-          /* @TODO: Change this setTimeout to Promise */
-          uploadGit(
-            btoa(unescape(encodeURIComponent(probStatement))),
-            problemName,
-            'README.md',
-            readmeMsg,
-            'upload',
-          );
-        }
+        // if (sha === null) {
+        //   /* @TODO: Change this setTimeout to Promise */
+        //   uploadGit(
+        //     btoa(unescape(encodeURIComponent(probStatement))),
+        //     problemName,
+        //     'README.md',
+        //     readmeMsg,
+        //     'upload',
+        //   );
+        // }
       });
 
       /* Upload code to Git */
